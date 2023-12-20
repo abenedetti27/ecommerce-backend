@@ -41,6 +41,27 @@ router.get('/:id', (req, res) => {
 
 // create new product
 router.post('/', (req, res) => {
+  try {
+    const newProduct = await Product.create(req.body);
+    
+    if (req.body.tagIds && req.body.tagIds.length) {
+      const productTagIdArr = req.body.tagIds.map((tag_id) => {
+        return {
+          product_id: newProduct.id,
+          tag_id,
+        };
+      });
+      
+      await ProductTag.bulkCreate(productTagIdArr);
+    }
+    res.status(201).json(newProduct);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+
   /* req.body should look like this...
     {
       product_name: "Basketball",
