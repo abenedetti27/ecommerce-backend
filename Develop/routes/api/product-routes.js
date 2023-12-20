@@ -61,7 +61,42 @@ router.post('/', (req, res) => {
   }
 });
 
+router.put('/:id', (req, res) => {
+  try {
+    const updatedProduct = await Product.update(req.body, {
+      where: {
+        id: req.params.id,
+      },
+    });
 
+    if (updatedProduct[0] === 0) {
+      res.status(404).json({ message: 'No product found with that id!' });
+      return;
+    }
+
+    if (req.body.tagIds && req.body.tagIds.length) {
+      const productTags = await ProductTag.findAll ({
+        where: { product_id: req.params.id }
+      });
+
+      const productTagIds = productTags.map(({ tag_id }) => tag_id);
+      const newTagIds = req.body.tagIds.filter((tag_id) => !currentTagIds.includes(tag_id));
+
+      const productTagIdArr = newTagIds.map((tag_id) => {
+        return {
+          product_id: req.params.id,
+          tag_id,
+        };
+      });
+
+      await ProductTag.destroy({
+        where: {
+          product_id: req.params.id,
+          tag_id: currentTagIds,
+      }
+      });
+      
+  }
   /* req.body should look like this...
     {
       product_name: "Basketball",
