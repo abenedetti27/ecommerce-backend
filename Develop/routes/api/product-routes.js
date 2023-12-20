@@ -95,8 +95,18 @@ router.put('/:id', (req, res) => {
           tag_id: currentTagIds,
       }
       });
-      
+
+      await ProductTag.bulkCreate(productTagIdArr);
+    }
+    res.status(200).json({ message: 'Product updated!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
   }
+});
+
+router.delete('/:id', (req, res) => {
+
   /* req.body should look like this...
     {
       product_name: "Basketball",
